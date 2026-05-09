@@ -3,6 +3,7 @@ using ClassLibrary.Bridge;
 using ClassLibrary.Bridge.Shapes;
 using ClassLibrary.Composite;
 using ClassLibrary.Composite.Builder;
+using ClassLibrary.Composite.Command;
 using ClassLibrary.Composite.Iterator;
 using ClassLibrary.Composite.Visitor;
 using ClassLibrary.Decorator;
@@ -25,6 +26,7 @@ namespace ConsoleApp
             //DecoratorPrint();
             //BridgePrint();
 
+            DemonstrateCommand();
             var element = DemonstrateBuilder();
             DemonstrateVisitor(element);
             DemonstrateIterator(element);
@@ -186,6 +188,29 @@ namespace ConsoleApp
             }
         }
 
+
+        static void DemonstrateCommand()
+        {
+            Console.WriteLine("--- Command ---");
+
+            var root = new LightElementNode("div", false);
+
+            var manager = new CommandManager();
+
+            var child = new LightElementNode("p", false);
+
+            manager.ExecuteCommand(new AddChildCommand(root, child));
+
+            manager.ExecuteCommand(new AddClassCommand(root, "container"));
+
+            Console.WriteLine(root.OuterHTML());
+
+            manager.Undo();
+            manager.Undo();
+
+            Console.WriteLine("After undo:");
+            Console.WriteLine(root.OuterHTML());
+        }
 
         #endregion
 
