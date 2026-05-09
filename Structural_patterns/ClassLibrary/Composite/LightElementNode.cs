@@ -84,5 +84,15 @@ namespace ClassLibrary.Composite
                 child.Accept(visitor);
             }
         }
+
+        public void RemoveChild(LightNode node)
+        {
+            children.Remove(node);
+        }
+
+        internal void RemoveClass(string className)
+        {
+            classes.Remove(className);
+        }
     }
 }
