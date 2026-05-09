@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClassLibrary.Composite.Visitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -70,6 +71,16 @@ namespace ClassLibrary.Composite
             sb.Append("</" + tagName + ">");
 
             return sb.ToString();
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+
+            foreach (var child in children)
+            {
+                child.Accept(visitor);
+            }
         }
     }
 }

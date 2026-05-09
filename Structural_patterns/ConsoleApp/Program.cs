@@ -3,9 +3,11 @@ using ClassLibrary.Bridge;
 using ClassLibrary.Bridge.Shapes;
 using ClassLibrary.Composite;
 using ClassLibrary.Composite.Builder;
+using ClassLibrary.Composite.Visitor;
 using ClassLibrary.Decorator;
 using ClassLibrary.Decorator.Heros;
 using System.Text;
+using System.Xml.Linq;
 
 namespace ConsoleApp
 {
@@ -23,6 +25,7 @@ namespace ConsoleApp
             //BridgePrint();
 
             DemonstrateBuilder();
+            DemonstrateVisitor();
         }
         #region base tasks
         public static void AdapterPrint()
@@ -153,6 +156,34 @@ namespace ConsoleApp
                 .Build();
 
             Console.WriteLine(element.OuterHTML());
+        }
+
+        static void DemonstrateVisitor()
+        {
+            ILightElementBuilder builder = new LightElementBuilder("div");
+
+            LightElementNode document = builder
+                .AddChild(
+                    new LightElementBuilder("h1")
+                        .AddChild(new LightTextNode("Hello"))
+                        .Build()
+                )
+                .AddChild(
+                    new LightElementBuilder("p")
+                        .AddChild(new LightTextNode("World"))
+                        .Build()
+                )
+                .Build();
+
+            Console.WriteLine(document.OuterHTML());
+
+            HtmlStatisticsVisitor visitor = new();
+
+            document.Accept(visitor);
+
+            Console.WriteLine($"Elements: {visitor.ElementCount}");
+            Console.WriteLine($"Text nodes: {visitor.TextNodeCount}");
+            Console.WriteLine($"Text nodes: {visitor.ImagesCount}");
         }
 
 

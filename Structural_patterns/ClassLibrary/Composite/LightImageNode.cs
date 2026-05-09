@@ -1,4 +1,5 @@
 ﻿using ClassLibrary.Composite.Strategy;
+using ClassLibrary.Composite.Visitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,11 @@ namespace ClassLibrary.Composite
         public string LoadImage()
         {
             return strategy.Load(href);
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }
