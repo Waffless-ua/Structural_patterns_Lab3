@@ -9,15 +9,13 @@ namespace ClassLibrary.Composite
     public class LightElementNode : LightNode
     {
         private string tagName;
-        private bool isBlock;
         private bool isSelfClosing;
         private List<string> classes = new List<string>();
         private List<LightNode> children = new List<LightNode>();
 
-        public LightElementNode(string tagName, bool isBlock, bool isSelfClosing)
+        public LightElementNode(string tagName, bool isSelfClosing)
         {
             this.tagName = tagName;
-            this.isBlock = isBlock;
             this.isSelfClosing = isSelfClosing;
         }
 

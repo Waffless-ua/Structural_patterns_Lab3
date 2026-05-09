@@ -19,6 +19,7 @@ namespace ConsoleApp
             //DecoratorPrint();
             //BridgePrint();
             DemonstrateCompositor();
+            //DemonstrateStrategy();
         }
 
         public static void AdapterPrint()
@@ -82,16 +83,16 @@ namespace ConsoleApp
 
         public static void DemonstrateCompositor()
         {
-            var ul = new LightElementNode("ul", true, false);
+            var ul = new LightElementNode("ul", false);
             ul.AddClass("my-list");
 
-            var li1 = new LightElementNode("li", false, false);
+            var li1 = new LightElementNode("li", false);
             li1.AddChild(new LightTextNode("Перший елемент"));
 
-            var li2 = new LightElementNode("li", false, false);
+            var li2 = new LightElementNode("li", false);
             li2.AddChild(new LightTextNode("Другий елемент"));
 
-            var li3 = new LightElementNode("li", false, false);
+            var li3 = new LightElementNode("li", false);
             li3.AddChild(new LightTextNode("Третій елемент"));
 
             ul.AddChild(li1);
@@ -105,6 +106,21 @@ namespace ConsoleApp
             Console.WriteLine(ul.InnerHTML());
 
             Console.WriteLine("\nКількість дочірніх елементів: " + ul.ChildCount());
+        }
+
+        static void DemonstrateStrategy()
+        {
+            var localImage = new LightImageNode("image.png");
+
+            var webImage = new LightImageNode("https://example.com/image.jpg");
+
+            Console.WriteLine("Light HTML");
+            Console.WriteLine(localImage.OuterHTML());
+            Console.WriteLine(webImage.OuterHTML());
+
+            Console.WriteLine("\nLoading");
+            Console.WriteLine(localImage.LoadImage());
+            Console.WriteLine(webImage.LoadImage());
         }
     }
 }
