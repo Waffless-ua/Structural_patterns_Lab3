@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ClassLibrary.Composite.State;
+using ClassLibrary.Composite.Visitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,16 +11,27 @@ namespace ClassLibrary.Composite
     public class LightElementNode : LightNode
     {
         private string tagName;
-        private bool isBlock;
         private bool isSelfClosing;
+        private NodeState _state;
+
         private List<string> classes = new List<string>();
         private List<LightNode> children = new List<LightNode>();
+        public IReadOnlyList<LightNode> Children => children;
 
-        public LightElementNode(string tagName, bool isBlock, bool isSelfClosing)
+        public LightElementNode(string tagName, bool isSelfClosing, NodeState state)
         {
             this.tagName = tagName;
-            this.isBlock = isBlock;
             this.isSelfClosing = isSelfClosing;
+            SetState(state);
+        }
+        public void SetState(NodeState newState)
+        {
+            newState.SetContext(this);
+            _state = newState;
+        }
+        public string Render()
+        {
+            return _state.Render();
         }
 
         public void AddClass(string className)
@@ -48,30 +61,39 @@ namespace ClassLibrary.Composite
             return sb.ToString();
         }
 
-        public override string OuterHTML()
+        protected override string RenderOpening()
         {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("<" + tagName);
-
+            var sb = new StringBuilder();
+            sb.Append($"<{tagName}");
             if (classes.Count > 0)
+                sb.Append($" class=\"{string.Join(" ", classes)}\"");
+            return isSelfClosing ? sb.Append(" />").ToString() : sb.Append(">").ToString();
+        }
+
+        protected override string RenderContent() => InnerHTML();
+        protected override string RenderClosing()
+        {
+            return isSelfClosing ? "" : $"</{tagName}>";
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+
+            foreach (var child in children)
             {
-                sb.Append(" class=\"");
-                sb.Append(string.Join(" ", classes));
-                sb.Append("\"");
+                child.Accept(visitor);
             }
+        }
 
-            if (isSelfClosing)
-            {
-                sb.Append(" />");
-                return sb.ToString();
-            }
+        public void RemoveChild(LightNode node)
+        {
+            children.Remove(node);
+        }
 
-            sb.Append(">");
-            sb.Append(InnerHTML());
-            sb.Append("</" + tagName + ">");
-
-            return sb.ToString();
+        internal void RemoveClass(string className)
+        {
+            classes.Remove(className);
         }
     }
 }

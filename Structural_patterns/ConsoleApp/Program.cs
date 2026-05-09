@@ -1,10 +1,16 @@
 ﻿using ClassLibrary.Adapter;
 using ClassLibrary.Bridge;
 using ClassLibrary.Bridge.Shapes;
-using ClassLibrary.Decorator;
 using ClassLibrary.Composite;
+using ClassLibrary.Composite.Builder;
+using ClassLibrary.Composite.Command;
+using ClassLibrary.Composite.Iterator;
+using ClassLibrary.Composite.State;
+using ClassLibrary.Composite.Visitor;
+using ClassLibrary.Decorator;
 using ClassLibrary.Decorator.Heros;
 using System.Text;
+using System.Xml.Linq;
 
 namespace ConsoleApp
 {
@@ -15,12 +21,19 @@ namespace ConsoleApp
             Console.InputEncoding = Encoding.UTF8;
             Console.OutputEncoding = Encoding.UTF8;
 
+            //DemonstrateCompositor();
+            //DemonstrateStrategy();
             //AdapterPrint();
             //DecoratorPrint();
             //BridgePrint();
-            DemonstrateCompositor();
-        }
 
+            DemonstrateCommand();
+            var element = DemonstrateBuilder();
+            DemonstrateVisitor(element);
+            DemonstrateIterator(element);
+            DemonstrateState(element);
+        }
+        #region base tasks
         public static void AdapterPrint()
         {
             Console.WriteLine("AdapterPrint\n");
@@ -79,19 +92,22 @@ namespace ConsoleApp
 
             Console.WriteLine();
         }
-
+        #endregion
+        
+        
+        #region base compositor
         public static void DemonstrateCompositor()
         {
-            var ul = new LightElementNode("ul", true, false);
+            var ul = new LightElementNode("ul", false, new VisibleState());
             ul.AddClass("my-list");
 
-            var li1 = new LightElementNode("li", false, false);
+            var li1 = new LightElementNode("li", false, new VisibleState());
             li1.AddChild(new LightTextNode("Перший елемент"));
 
-            var li2 = new LightElementNode("li", false, false);
+            var li2 = new LightElementNode("li", false, new VisibleState());
             li2.AddChild(new LightTextNode("Другий елемент"));
 
-            var li3 = new LightElementNode("li", false, false);
+            var li3 = new LightElementNode("li", false, new VisibleState());
             li3.AddChild(new LightTextNode("Третій елемент"));
 
             ul.AddChild(li1);
@@ -106,5 +122,118 @@ namespace ConsoleApp
 
             Console.WriteLine("\nКількість дочірніх елементів: " + ul.ChildCount());
         }
+
+        static void DemonstrateStrategy()
+        {
+            var localImage = new LightImageNode("image.png");
+
+            var webImage = new LightImageNode("https://example.com/image.jpg");
+
+            Console.WriteLine("Light HTML");
+            Console.WriteLine(localImage.OuterHTML());
+            Console.WriteLine(webImage.OuterHTML());
+
+            Console.WriteLine("\nLoading");
+            Console.WriteLine(localImage.LoadImage());
+            Console.WriteLine(webImage.LoadImage());
+        }
+        #endregion
+
+        #region module work patterns
+        static LightElementNode DemonstrateBuilder()
+        {
+            Console.WriteLine("--- Builder ---");
+            ILightElementBuilder builder = new LightElementBuilder("div");
+
+            LightElementNode element = builder
+                    .AddClass("container")
+                    .AddClass("mt-5")
+                    .AddChild(
+                        new LightElementBuilder("h1")
+                            .AddClass("title")
+                            .AddChild(new LightTextNode("Hello Builder"))
+                            .Build()
+                    )
+                    .AddChild(
+                        new LightElementBuilder("p")
+                            .AddChild(new LightTextNode("This is paragraph"))
+                            .Build()
+                    )
+                    .Build();
+
+            Console.WriteLine(element.OuterHTML());
+
+            return element;
+        }
+        static void DemonstrateVisitor(LightElementNode element)
+        {
+            Console.WriteLine("--- Visitor ---");
+            HtmlStatisticsVisitor visitor = new();
+
+            element.Accept(visitor);
+
+            Console.WriteLine($"Elements: {visitor.ElementCount}");
+            Console.WriteLine($"Text nodes: {visitor.TextNodeCount}");
+            Console.WriteLine($"Text nodes: {visitor.ImagesCount}");
+        }
+        static void DemonstrateIterator(LightElementNode element)
+        {
+            Console.WriteLine("--- Iterator ---");
+
+            ILightIterator iterator = new DepthFirstIterator(element);
+
+            while (iterator.HasNext())
+            {
+                var node = iterator.Next();
+                
+                Console.WriteLine(node.OuterHTML());
+            }
+        }
+
+
+        static void DemonstrateCommand()
+        {
+            Console.WriteLine("--- Command ---");
+
+            var root = new LightElementNode("div", false, new VisibleState());
+
+            var manager = new CommandManager();
+
+            var child = new LightElementNode("p", false, new VisibleState());
+
+            manager.ExecuteCommand(new AddChildCommand(root, child));
+
+            manager.ExecuteCommand(new AddClassCommand(root, "container"));
+
+            Console.WriteLine(root.OuterHTML());
+
+            manager.Undo();
+            manager.Undo();
+
+            Console.WriteLine("After undo:");
+            Console.WriteLine(root.OuterHTML());
+        }
+
+        static void DemonstrateState(LightElementNode element)
+        {
+            Console.WriteLine("--- State ---");
+
+            Console.WriteLine("Current state (Visible):");
+            Console.WriteLine(element.Render());
+
+            Console.WriteLine("\nSwitching to HiddenState...");
+            element.SetState(new HiddenState());
+            Console.WriteLine("Hidden state:");
+            Console.WriteLine($"Render output: '{element.Render()}'");
+
+            Console.WriteLine("\nSwitching back to VisibleState...");
+            element.SetState(new VisibleState());
+            Console.WriteLine("Visible state again:");
+            Console.WriteLine(element.Render());
+        }
+
+        #endregion
+
+
     }
 }

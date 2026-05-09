@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClassLibrary.Composite.Visitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,11 @@ namespace ClassLibrary.Composite
         public override string InnerHTML()
         {
             return text;
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }
