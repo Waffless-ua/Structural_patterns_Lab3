@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClassLibrary.Composite.State;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace ClassLibrary.Composite.Builder
 
         public LightElementBuilder(string tagName, bool isSelfClosing = false)
         {
-            element = new LightElementNode(tagName, isSelfClosing);
+            element = new LightElementNode(tagName, isSelfClosing, new VisibleState());
         }
 
         public ILightElementBuilder AddClass(string className)

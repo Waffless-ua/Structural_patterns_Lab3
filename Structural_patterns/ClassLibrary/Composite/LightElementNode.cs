@@ -1,4 +1,5 @@
-﻿using ClassLibrary.Composite.Visitor;
+﻿using ClassLibrary.Composite.State;
+using ClassLibrary.Composite.Visitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,15 +12,26 @@ namespace ClassLibrary.Composite
     {
         private string tagName;
         private bool isSelfClosing;
-        private List<string> classes = new List<string>();
+        private NodeState _state;
 
+        private List<string> classes = new List<string>();
         private List<LightNode> children = new List<LightNode>();
         public IReadOnlyList<LightNode> Children => children;
 
-        public LightElementNode(string tagName, bool isSelfClosing)
+        public LightElementNode(string tagName, bool isSelfClosing, NodeState state)
         {
             this.tagName = tagName;
             this.isSelfClosing = isSelfClosing;
+            SetState(state);
+        }
+        public void SetState(NodeState newState)
+        {
+            newState.SetContext(this);
+            _state = newState;
+        }
+        public string Render()
+        {
+            return _state.Render();
         }
 
         public void AddClass(string className)
