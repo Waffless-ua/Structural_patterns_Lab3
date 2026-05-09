@@ -3,6 +3,7 @@ using ClassLibrary.Bridge;
 using ClassLibrary.Bridge.Shapes;
 using ClassLibrary.Composite;
 using ClassLibrary.Composite.Builder;
+using ClassLibrary.Composite.Iterator;
 using ClassLibrary.Composite.Visitor;
 using ClassLibrary.Decorator;
 using ClassLibrary.Decorator.Heros;
@@ -24,8 +25,9 @@ namespace ConsoleApp
             //DecoratorPrint();
             //BridgePrint();
 
-            DemonstrateBuilder();
-            DemonstrateVisitor();
+            var element = DemonstrateBuilder();
+            DemonstrateVisitor(element);
+            DemonstrateIterator(element);
         }
         #region base tasks
         public static void AdapterPrint()
@@ -134,58 +136,55 @@ namespace ConsoleApp
         #endregion
 
         #region module work patterns
-
-        static void DemonstrateBuilder()
+        static LightElementNode DemonstrateBuilder()
         {
+            Console.WriteLine("--- Builder ---");
             ILightElementBuilder builder = new LightElementBuilder("div");
 
             LightElementNode element = builder
-                .AddClass("container")
-                .AddClass("mt-5")
-                .AddChild(
-                    new LightElementBuilder("h1")
-                        .AddClass("title")
-                        .AddChild(new LightTextNode("Hello Builder"))
-                        .Build()
-                )
-                .AddChild(
-                    new LightElementBuilder("p")
-                        .AddChild(new LightTextNode("This is paragraph"))
-                        .Build()
-                )
-                .Build();
+                    .AddClass("container")
+                    .AddClass("mt-5")
+                    .AddChild(
+                        new LightElementBuilder("h1")
+                            .AddClass("title")
+                            .AddChild(new LightTextNode("Hello Builder"))
+                            .Build()
+                    )
+                    .AddChild(
+                        new LightElementBuilder("p")
+                            .AddChild(new LightTextNode("This is paragraph"))
+                            .Build()
+                    )
+                    .Build();
 
             Console.WriteLine(element.OuterHTML());
+
+            return element;
         }
-
-        static void DemonstrateVisitor()
+        static void DemonstrateVisitor(LightElementNode element)
         {
-            ILightElementBuilder builder = new LightElementBuilder("div");
-
-            LightElementNode document = builder
-                .AddChild(
-                    new LightElementBuilder("h1")
-                        .AddChild(new LightTextNode("Hello"))
-                        .Build()
-                )
-                .AddChild(
-                    new LightElementBuilder("p")
-                        .AddChild(new LightTextNode("World"))
-                        .Build()
-                )
-                .Build();
-
-            Console.WriteLine(document.OuterHTML());
-
+            Console.WriteLine("--- Visitor ---");
             HtmlStatisticsVisitor visitor = new();
 
-            document.Accept(visitor);
+            element.Accept(visitor);
 
             Console.WriteLine($"Elements: {visitor.ElementCount}");
             Console.WriteLine($"Text nodes: {visitor.TextNodeCount}");
             Console.WriteLine($"Text nodes: {visitor.ImagesCount}");
         }
+        static void DemonstrateIterator(LightElementNode element)
+        {
+            Console.WriteLine("--- Iterator ---");
 
+            ILightIterator iterator = new DepthFirstIterator(element);
+
+            while (iterator.HasNext())
+            {
+                var node = iterator.Next();
+                
+                Console.WriteLine(node.OuterHTML());
+            }
+        }
 
 
         #endregion
