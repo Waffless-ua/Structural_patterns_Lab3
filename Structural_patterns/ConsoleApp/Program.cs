@@ -5,6 +5,7 @@ using ClassLibrary.Composite;
 using ClassLibrary.Composite.Builder;
 using ClassLibrary.Composite.Command;
 using ClassLibrary.Composite.Iterator;
+using ClassLibrary.Composite.State;
 using ClassLibrary.Composite.Visitor;
 using ClassLibrary.Decorator;
 using ClassLibrary.Decorator.Heros;
@@ -30,6 +31,7 @@ namespace ConsoleApp
             var element = DemonstrateBuilder();
             DemonstrateVisitor(element);
             DemonstrateIterator(element);
+            DemonstrateState(element);
         }
         #region base tasks
         public static void AdapterPrint()
@@ -96,16 +98,16 @@ namespace ConsoleApp
         #region base compositor
         public static void DemonstrateCompositor()
         {
-            var ul = new LightElementNode("ul", false);
+            var ul = new LightElementNode("ul", false, new VisibleState());
             ul.AddClass("my-list");
 
-            var li1 = new LightElementNode("li", false);
+            var li1 = new LightElementNode("li", false, new VisibleState());
             li1.AddChild(new LightTextNode("Перший елемент"));
 
-            var li2 = new LightElementNode("li", false);
+            var li2 = new LightElementNode("li", false, new VisibleState());
             li2.AddChild(new LightTextNode("Другий елемент"));
 
-            var li3 = new LightElementNode("li", false);
+            var li3 = new LightElementNode("li", false, new VisibleState());
             li3.AddChild(new LightTextNode("Третій елемент"));
 
             ul.AddChild(li1);
@@ -193,11 +195,11 @@ namespace ConsoleApp
         {
             Console.WriteLine("--- Command ---");
 
-            var root = new LightElementNode("div", false);
+            var root = new LightElementNode("div", false, new VisibleState());
 
             var manager = new CommandManager();
 
-            var child = new LightElementNode("p", false);
+            var child = new LightElementNode("p", false, new VisibleState());
 
             manager.ExecuteCommand(new AddChildCommand(root, child));
 
@@ -210,6 +212,24 @@ namespace ConsoleApp
 
             Console.WriteLine("After undo:");
             Console.WriteLine(root.OuterHTML());
+        }
+
+        static void DemonstrateState(LightElementNode element)
+        {
+            Console.WriteLine("--- State ---");
+
+            Console.WriteLine("Current state (Visible):");
+            Console.WriteLine(element.Render());
+
+            Console.WriteLine("\nSwitching to HiddenState...");
+            element.SetState(new HiddenState());
+            Console.WriteLine("Hidden state:");
+            Console.WriteLine($"Render output: '{element.Render()}'");
+
+            Console.WriteLine("\nSwitching back to VisibleState...");
+            element.SetState(new VisibleState());
+            Console.WriteLine("Visible state again:");
+            Console.WriteLine(element.Render());
         }
 
         #endregion
