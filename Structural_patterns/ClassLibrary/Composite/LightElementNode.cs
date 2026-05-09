@@ -12,7 +12,9 @@ namespace ClassLibrary.Composite
         private string tagName;
         private bool isSelfClosing;
         private List<string> classes = new List<string>();
+
         private List<LightNode> children = new List<LightNode>();
+        public IReadOnlyList<LightNode> Children => children;
 
         public LightElementNode(string tagName, bool isSelfClosing)
         {
