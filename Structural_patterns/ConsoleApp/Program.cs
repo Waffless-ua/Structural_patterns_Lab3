@@ -1,8 +1,9 @@
 ﻿using ClassLibrary.Adapter;
 using ClassLibrary.Bridge;
 using ClassLibrary.Bridge.Shapes;
-using ClassLibrary.Decorator;
 using ClassLibrary.Composite;
+using ClassLibrary.Composite.Builder;
+using ClassLibrary.Decorator;
 using ClassLibrary.Decorator.Heros;
 using System.Text;
 
@@ -15,13 +16,15 @@ namespace ConsoleApp
             Console.InputEncoding = Encoding.UTF8;
             Console.OutputEncoding = Encoding.UTF8;
 
+            //DemonstrateCompositor();
+            //DemonstrateStrategy();
             //AdapterPrint();
             //DecoratorPrint();
             //BridgePrint();
-            DemonstrateCompositor();
-            //DemonstrateStrategy();
-        }
 
+            DemonstrateBuilder();
+        }
+        #region base tasks
         public static void AdapterPrint()
         {
             Console.WriteLine("AdapterPrint\n");
@@ -80,7 +83,10 @@ namespace ConsoleApp
 
             Console.WriteLine();
         }
-
+        #endregion
+        
+        
+        #region base compositor
         public static void DemonstrateCompositor()
         {
             var ul = new LightElementNode("ul", false);
@@ -122,5 +128,37 @@ namespace ConsoleApp
             Console.WriteLine(localImage.LoadImage());
             Console.WriteLine(webImage.LoadImage());
         }
+        #endregion
+
+        #region module work patterns
+
+        static void DemonstrateBuilder()
+        {
+            ILightElementBuilder builder = new LightElementBuilder("div");
+
+            LightElementNode element = builder
+                .AddClass("container")
+                .AddClass("mt-5")
+                .AddChild(
+                    new LightElementBuilder("h1")
+                        .AddClass("title")
+                        .AddChild(new LightTextNode("Hello Builder"))
+                        .Build()
+                )
+                .AddChild(
+                    new LightElementBuilder("p")
+                        .AddChild(new LightTextNode("This is paragraph"))
+                        .Build()
+                )
+                .Build();
+
+            Console.WriteLine(element.OuterHTML());
+        }
+
+
+
+        #endregion
+
+
     }
 }
