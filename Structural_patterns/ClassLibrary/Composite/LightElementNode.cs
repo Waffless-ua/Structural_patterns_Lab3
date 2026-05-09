@@ -61,30 +61,19 @@ namespace ClassLibrary.Composite
             return sb.ToString();
         }
 
-        public override string OuterHTML()
+        protected override string RenderOpening()
         {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("<" + tagName);
-
+            var sb = new StringBuilder();
+            sb.Append($"<{tagName}");
             if (classes.Count > 0)
-            {
-                sb.Append(" class=\"");
-                sb.Append(string.Join(" ", classes));
-                sb.Append("\"");
-            }
+                sb.Append($" class=\"{string.Join(" ", classes)}\"");
+            return isSelfClosing ? sb.Append(" />").ToString() : sb.Append(">").ToString();
+        }
 
-            if (isSelfClosing)
-            {
-                sb.Append(" />");
-                return sb.ToString();
-            }
-
-            sb.Append(">");
-            sb.Append(InnerHTML());
-            sb.Append("</" + tagName + ">");
-
-            return sb.ToString();
+        protected override string RenderContent() => InnerHTML();
+        protected override string RenderClosing()
+        {
+            return isSelfClosing ? "" : $"</{tagName}>";
         }
 
         public override void Accept(IVisitor visitor)

@@ -9,7 +9,15 @@ namespace ClassLibrary.Composite
 {
     public abstract class LightNode
     {
-        public abstract string OuterHTML();
+        public virtual string OuterHTML()
+        {
+            return RenderOpening() + RenderContent() + RenderClosing();
+        }
+
+        protected virtual string RenderOpening() => "";
+        protected virtual string RenderContent() => InnerHTML();
+        protected virtual string RenderClosing() => "";
+
         public abstract string InnerHTML();
         public abstract void Accept(IVisitor visitor);
     }
